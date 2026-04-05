@@ -4,6 +4,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { SWRConfig } from "swr";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { useCreateUser, useUsers } from "../../../../webapp/client/hooks/use-users.js";
+import type { CreateUserInput } from "../../../../webapp/shared/validators/index.js";
 
 const { getUsersMock, postUserMock } = vi.hoisted(() => ({
   getUsersMock: vi.fn(),
@@ -85,7 +86,7 @@ describe("useUsers", () => {
       json: async () => users,
     }));
 
-    postUserMock.mockImplementation(async ({ json }: { json: { name: string; email: string } }) => {
+    postUserMock.mockImplementation(async ({ json }: { json: CreateUserInput }) => {
       const createdUser = { id: "2", ...json };
       users = [...users, createdUser];
       return {

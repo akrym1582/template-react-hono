@@ -27,7 +27,7 @@ export function useUsers() {
     error,
     isLoading,
     isValidating,
-    isError: Boolean(error),
+    isError: !!error,
     mutate,
   };
 }
@@ -38,8 +38,8 @@ export function useCreateUser() {
     const res = await apiClient.api.users.$post({ json: arg });
     return res.json();
   }, {
-    onSuccess: async () => {
-      await mutate(USERS_KEY);
+    onSuccess: () => {
+      void mutate(USERS_KEY);
     },
   });
 
@@ -59,8 +59,8 @@ export function useUpdateUser() {
       return res.json();
     },
     {
-      onSuccess: async () => {
-        await mutate(USERS_KEY);
+      onSuccess: () => {
+        void mutate(USERS_KEY);
       },
     }
   );
@@ -78,8 +78,8 @@ export function useDeleteUser() {
     const res = await apiClient.api.users[":id"].$delete({ param: { id: arg } });
     return res.json();
   }, {
-    onSuccess: async () => {
-      await mutate(USERS_KEY);
+    onSuccess: () => {
+      void mutate(USERS_KEY);
     },
   });
 
