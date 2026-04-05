@@ -10,5 +10,22 @@ export const updateUserSchema = z.object({
   email: z.string().email().optional(),
 });
 
+export const localLoginSchema = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const msalLoginSchema = z
+  .object({
+    idToken: z.string().min(1).optional(),
+    accessToken: z.string().min(1).optional(),
+  })
+  .refine((value) => Boolean(value.idToken || value.accessToken), {
+    message: "Either idToken or accessToken is required",
+    path: ["idToken"],
+  });
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type LocalLoginInput = z.infer<typeof localLoginSchema>;
+export type MsalLoginInput = z.infer<typeof msalLoginSchema>;

@@ -7,6 +7,12 @@ const mockUser: User = {
   type: "user",
   name: "Test User",
   email: "test@example.com",
+  userId: "test@example.com",
+  displayName: "Test User",
+  hasLocalPassword: false,
+  roles: ["viewer"],
+  isActive: true,
+  sessionVersion: 0,
   createdAt: "2024-01-01T00:00:00.000Z",
   updatedAt: "2024-01-01T00:00:00.000Z",
 };
@@ -39,18 +45,31 @@ describe("UserService", () => {
     expect(mockRepo.findById).toHaveBeenCalledWith("1");
   });
 
-  it("create creates a new user", async () => {
+  it("create creates a new user with auth defaults", async () => {
     const input = { name: "Test User", email: "test@example.com" };
     const result = await service.create(input);
     expect(result).toEqual(mockUser);
-    expect(mockRepo.create).toHaveBeenCalledWith({ ...input, type: "user" });
+    expect(mockRepo.create).toHaveBeenCalledWith({
+      ...input,
+      type: "user",
+      userId: "test@example.com",
+      displayName: "Test User",
+      hasLocalPassword: false,
+      roles: ["viewer"],
+      isActive: true,
+      sessionVersion: 0,
+    });
   });
 
-  it("update updates a user", async () => {
-    const input = { name: "Updated User" };
+  it("update updates a user and mirrors profile fields", async () => {
+    const input = { name: "Updated User", email: "updated@example.com" };
     const result = await service.update("1", input);
     expect(result).toEqual(mockUser);
-    expect(mockRepo.update).toHaveBeenCalledWith("1", input);
+    expect(mockRepo.update).toHaveBeenCalledWith("1", {
+      ...input,
+      displayName: "Updated User",
+      userId: "updated@example.com",
+    });
   });
 
   it("delete removes a user", async () => {

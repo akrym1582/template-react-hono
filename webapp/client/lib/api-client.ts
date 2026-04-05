@@ -1,15 +1,13 @@
 import { hc } from "hono/client";
 import type { AppType } from "../../server/routes/index.js";
-import { acquireToken } from "./auth.js";
 
 /**
  * Hono RPC クライアントです。
  * サーバー側の route 型をそのまま使うので、API を追加すると補完や型チェックが自動で追従します。
- * 共通ヘッダーを増やしたい場合もこの生成箇所を触れば全 API 呼び出しへ反映できます。
+ * Cookie 認証へ統一したため、以後の API 呼び出しは `credentials: include` だけを共通設定します。
  */
 export const apiClient = hc<AppType>("/", {
-  headers: async (): Promise<Record<string, string>> => {
-    const token = await acquireToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
+  init: {
+    credentials: "include",
   },
 });
