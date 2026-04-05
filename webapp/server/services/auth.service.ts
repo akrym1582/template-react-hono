@@ -13,7 +13,7 @@ import { UserRepository } from "../repositories/user.repository.js";
 class AuthError extends Error {
   constructor(
     message: string,
-    readonly status: number
+    readonly status: 401 | 403 | 500
   ) {
     super(message);
     this.name = "AuthError";

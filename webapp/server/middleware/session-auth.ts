@@ -23,12 +23,13 @@ async function resolveAuthUser(c: Context): Promise<SessionUser | null> {
   try {
     const payload = await verifySessionToken(token);
     const user = await userRepository.findById(payload.sub);
+    const sessionVersion = payload.sessionVersion ?? 0;
 
     if (!user || !user.isActive) {
       return null;
     }
 
-    if ((user.sessionVersion ?? 0) !== payload.sessionVersion) {
+    if ((user.sessionVersion ?? 0) !== sessionVersion) {
       return null;
     }
 
@@ -39,7 +40,7 @@ async function resolveAuthUser(c: Context): Promise<SessionUser | null> {
       displayName: payload.displayName,
       roles: payload.roles,
       loginProvider: payload.loginProvider,
-      sessionVersion: payload.sessionVersion,
+      sessionVersion,
     };
   } catch {
     return null;

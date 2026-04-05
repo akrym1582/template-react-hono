@@ -10,12 +10,10 @@ import {
 import { AuthService, isAuthError } from "../services/auth.service.js";
 
 const authService = new AuthService();
-const handledAuthStatuses = new Set([401, 403, 500]);
 
 function handleAuthError(c: Context, error: unknown) {
   if (isAuthError(error)) {
-    const status = handledAuthStatuses.has(error.status) ? error.status : 500;
-    return c.json({ error: error.message }, { status: status as 401 | 403 | 500 });
+    return c.json({ error: error.message }, { status: error.status });
   }
 
   return c.json({ error: "Authentication failed" }, 500);

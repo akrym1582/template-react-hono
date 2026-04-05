@@ -55,7 +55,7 @@ export async function verifySessionToken(token: string): Promise<SessionJwtPaylo
     audience: env.AUTH_JWT_AUDIENCE,
   });
 
-  return {
+  const sessionPayload: SessionJwtPayload = {
     sub: payload.sub ?? "",
     userId: typeof payload.userId === "string" ? payload.userId : "",
     email: typeof payload.email === "string" ? payload.email : undefined,
@@ -77,7 +77,9 @@ export async function verifySessionToken(token: string): Promise<SessionJwtPaylo
         : Array.isArray(payload.aud)
           ? payload.aud[0] ?? ""
           : "",
-  } as SessionJwtPayload;
+  };
+
+  return sessionPayload;
 }
 
 export function getSessionToken(c: Context): string | undefined {
