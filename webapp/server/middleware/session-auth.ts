@@ -2,19 +2,19 @@ import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 import type { SessionUser, UserRole } from "../../shared/types/index.js";
 import { getSessionToken, verifySessionToken } from "../lib/auth/session.js";
-import { UserRepository } from "../repositories/user.repository.js";
+import type { ServiceProviderVariables } from "../lib/service-provider.js";
 
 export type SessionAuthVariables = {
-  Variables: {
+  Variables: ServiceProviderVariables["Variables"] & {
     authUser: SessionUser;
     userId: string;
     roles: UserRole[];
   };
 };
 
-const userRepository = new UserRepository();
-
-async function resolveAuthUser(c: Context): Promise<SessionUser | null> {
+async function resolveAuthUser<T extends ServiceProviderVariables>(
+  c: Context<T>
+): Promise<SessionUser | null> {
   const token = getSessionToken(c);
   if (!token) {
     return null;
@@ -22,6 +22,7 @@ async function resolveAuthUser(c: Context): Promise<SessionUser | null> {
 
   try {
     const payload = await verifySessionToken(token);
+    const userRepository = c.var.serviceProvider.getUserRepository();
     const user = await userRepository.findById(payload.sub);
     const sessionVersion = payload.sessionVersion ?? 0;
 
@@ -47,7 +48,9 @@ async function resolveAuthUser(c: Context): Promise<SessionUser | null> {
   }
 }
 
-export async function getRequestAuthUser(c: Context): Promise<SessionUser | null> {
+export async function getRequestAuthUser<T extends ServiceProviderVariables>(
+  c: Context<T>
+): Promise<SessionUser | null> {
   return resolveAuthUser(c);
 }
 

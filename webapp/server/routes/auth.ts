@@ -3,15 +3,12 @@ import { zValidator } from "@hono/zod-validator";
 import type { AuthResponse, CurrentSessionResponse } from "../../shared/types/index.js";
 import { localLoginSchema, msalLoginSchema } from "../../shared/validators/index.js";
 import { clearSessionCookie, setSessionCookie } from "../lib/auth/session.js";
-import { serverServiceProvider } from "../lib/service-provider.js";
 import { logger } from "../lib/logger.js";
 import {
   getRequestAuthUser,
   type SessionAuthVariables,
 } from "../middleware/session-auth.js";
 import { AuthService, isAuthError } from "../services/auth.service.js";
-
-const authService = serverServiceProvider.getAuthService();
 
 function handleAuthError(c: Context, error: unknown) {
   if (isAuthError(error)) {
@@ -34,6 +31,7 @@ export const authRoute = new Hono<SessionAuthVariables>()
   .post("/login", zValidator("json", localLoginSchema), async (c) => {
     try {
       const body = c.req.valid("json");
+      const authService = c.var.serviceProvider.getAuthService();
       const result = await authService.loginWithPassword(body);
       setSessionCookie(c, result.token);
       return c.json<AuthResponse>({ ok: true, user: result.user });
@@ -44,6 +42,7 @@ export const authRoute = new Hono<SessionAuthVariables>()
   .post("/msal/login", zValidator("json", msalLoginSchema), async (c) => {
     try {
       const body = c.req.valid("json");
+      const authService = c.var.serviceProvider.getAuthService();
       const result = await authService.loginWithMsal(body);
       setSessionCookie(c, result.token);
       return c.json<AuthResponse>({ ok: true, user: result.user });

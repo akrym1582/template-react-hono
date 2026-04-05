@@ -8,6 +8,12 @@ export interface ServerServiceProvider {
   getAuthService(): AuthService;
 }
 
+export type ServiceProviderVariables = {
+  Variables: {
+    serviceProvider: ServerServiceProvider;
+  };
+};
+
 class DefaultServerServiceProvider implements ServerServiceProvider {
   private userRepository?: UserRepository;
   private userService?: UserService;
@@ -38,5 +44,3 @@ class DefaultServerServiceProvider implements ServerServiceProvider {
 export function createServerServiceProvider(): ServerServiceProvider {
   return new DefaultServerServiceProvider();
 }
-
-export const serverServiceProvider = createServerServiceProvider();
