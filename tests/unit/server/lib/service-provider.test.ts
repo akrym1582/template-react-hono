@@ -1,24 +1,57 @@
-import { describe, expect, it } from "vitest";
-import { AuthService } from "../../../../webapp/server/services/auth.service.js";
-import { UserRepository } from "../../../../webapp/server/repositories/user.repository.js";
-import { UserService } from "../../../../webapp/server/services/user.service.js";
+import { describe, expect, it, vi } from "vitest";
+
+const {
+  userRepositoryInstance,
+  userServiceInstance,
+  authServiceInstance,
+  UserRepository,
+  UserService,
+  AuthService,
+} = vi.hoisted(() => {
+  const userRepositoryInstance = { kind: "user-repository" };
+  const userServiceInstance = { kind: "user-service" };
+  const authServiceInstance = { kind: "auth-service" };
+
+  return {
+    userRepositoryInstance,
+    userServiceInstance,
+    authServiceInstance,
+    UserRepository: vi.fn().mockImplementation(() => userRepositoryInstance),
+    UserService: vi.fn().mockImplementation(() => userServiceInstance),
+    AuthService: vi.fn().mockImplementation(() => authServiceInstance),
+  };
+});
+
+vi.mock("../../../../webapp/server/repositories/user.repository.js", () => ({
+  UserRepository,
+}));
+
+vi.mock("../../../../webapp/server/services/user.service.js", () => ({
+  UserService,
+}));
+
+vi.mock("../../../../webapp/server/services/auth.service.js", () => ({
+  AuthService,
+}));
+
 import { createServerServiceProvider } from "../../../../webapp/server/lib/service-provider.js";
 
 describe("ServerServiceProvider", () => {
-  it("shares the same repository instance across services", () => {
+  it("reuses the same repository instance when constructing services", () => {
     const provider = createServerServiceProvider();
 
-    const userRepository = provider.getUserRepository();
-    const userService = provider.getUserService();
-    const authService = provider.getAuthService();
+    expect(provider.getUserRepository()).toBe(userRepositoryInstance);
+    expect(provider.getUserService()).toBe(userServiceInstance);
+    expect(provider.getAuthService()).toBe(authServiceInstance);
 
-    expect(userRepository).toBeInstanceOf(UserRepository);
-    expect(userService).toBeInstanceOf(UserService);
-    expect(authService).toBeInstanceOf(AuthService);
-    expect(provider.getUserRepository()).toBe(userRepository);
-    expect(provider.getUserService()).toBe(userService);
-    expect(provider.getAuthService()).toBe(authService);
-    expect((userService as { repo: UserRepository }).repo).toBe(userRepository);
-    expect((authService as { repo: UserRepository }).repo).toBe(userRepository);
+    expect(provider.getUserRepository()).toBe(userRepositoryInstance);
+    expect(provider.getUserService()).toBe(userServiceInstance);
+    expect(provider.getAuthService()).toBe(authServiceInstance);
+
+    expect(UserRepository).toHaveBeenCalledTimes(1);
+    expect(UserService).toHaveBeenCalledTimes(1);
+    expect(AuthService).toHaveBeenCalledTimes(1);
+    expect(UserService).toHaveBeenCalledWith(userRepositoryInstance);
+    expect(AuthService).toHaveBeenCalledWith(userRepositoryInstance);
   });
 });
