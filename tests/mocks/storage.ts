@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+
 export const mockBlobServiceClient = {
   getContainerClient: vi.fn().mockReturnValue({
     getBlockBlobClient: vi.fn().mockReturnValue({

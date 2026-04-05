@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+
 export const mockContainer = {
   items: {
     query: vi.fn().mockReturnValue({

@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+
 export const mockJwtVerify = vi.fn();
 
 vi.mock("jose", () => ({
