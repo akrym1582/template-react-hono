@@ -11,6 +11,7 @@ export interface User {
 
 const USERS_KEY = "users";
 
+/** 一覧取得専用の fetcher です。SWR から繰り返し呼ばれることを想定しています。 */
 async function fetchUsers() {
   const res = await apiClient.api.users.$get();
   if (!res.ok) {
@@ -19,6 +20,10 @@ async function fetchUsers() {
   return res.json();
 }
 
+/**
+ * ユーザー一覧を購読するフックです。
+ * 一覧画面を増やすときは、この戻り値をそのまま使うだけでローディング状態も扱えます。
+ */
 export function useUsers() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<User[]>(USERS_KEY, fetchUsers);
 
@@ -32,6 +37,7 @@ export function useUsers() {
   };
 }
 
+/** 作成後に一覧を再検証し、画面を最新状態へそろえるためのフックです。 */
 export function useCreateUser() {
   const { mutate } = useSWRConfig();
   const mutation = useSWRMutation(USERS_KEY, async (_key: string, { arg }: { arg: CreateUserInput }) => {
@@ -50,6 +56,7 @@ export function useCreateUser() {
   };
 }
 
+/** 更新処理専用フックです。ID と更新内容をまとめて受け取ります。 */
 export function useUpdateUser() {
   const { mutate } = useSWRConfig();
   const mutation = useSWRMutation(
@@ -72,6 +79,7 @@ export function useUpdateUser() {
   };
 }
 
+/** 削除後も一覧を再取得し、手動で状態同期しなくて済むようにしています。 */
 export function useDeleteUser() {
   const { mutate } = useSWRConfig();
   const mutation = useSWRMutation(USERS_KEY, async (_key: string, { arg }: { arg: string }) => {

@@ -8,6 +8,11 @@ import "./styles/globals.css";
 const root = document.getElementById("root");
 if (!root) throw new Error("Root element not found");
 
+/**
+ * React アプリの最上位です。
+ * 認証やデータ取得の Provider をここにまとめると、後からテーマや通知機能を追加するときも
+ * どこに差し込めばよいか一目で分かります。
+ */
 createRoot(root).render(
   <StrictMode>
     <AuthProvider>

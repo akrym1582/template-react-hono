@@ -5,6 +5,10 @@ import { IndexPage } from "./routes/index.js";
 import { LoginPage } from "./routes/login.js";
 import { DashboardPage } from "./routes/dashboard.js";
 
+/**
+ * 画面遷移の定義をまとめる場所です。
+ * 新しいページを追加するときは route コンポーネントを作成し、ここへ 1 行足すのが基本の流れです。
+ */
 export function AppRoutes() {
   return (
     <Routes>
@@ -17,6 +21,7 @@ export function AppRoutes() {
   );
 }
 
+/** BrowserRouter で SPA 全体を包み、URL と画面を連動させます。 */
 export function App() {
   return (
     <BrowserRouter>
