@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import useSWR, { useSWRConfig } from "swr";
+import useSWRMutation from "swr/mutation";
 import { apiClient } from "../lib/api-client.js";
 import type { CreateUserInput, UpdateUserInput } from "../../shared/validators/index.js";
 
@@ -8,48 +9,83 @@ export interface User {
   email: string;
 }
 
+const USERS_KEY = "users";
+
+async function fetchUsers() {
+  const res = await apiClient.api.users.$get();
+  if (!res.ok) {
+    throw new Error("Failed to load users");
+  }
+  return res.json();
+}
+
 export function useUsers() {
-  return useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const res = await apiClient.api.users.$get();
-      if (!res.ok) {
-        throw new Error("Failed to load users");
-      }
-      return res.json();
-    },
-  });
+  const { data, error, isLoading, isValidating, mutate } = useSWR<User[]>(USERS_KEY, fetchUsers);
+
+  return {
+    data,
+    error,
+    isLoading,
+    isValidating,
+    isError: !!error,
+    mutate,
+  };
 }
 
 export function useCreateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: CreateUserInput) => {
-      const res = await apiClient.api.users.$post({ json: data });
-      return res.json();
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation(USERS_KEY, async (_key: string, { arg }: { arg: CreateUserInput }) => {
+    const res = await apiClient.api.users.$post({ json: arg });
+    return res.json();
+  }, {
+    onSuccess: () => {
+      void mutate(USERS_KEY);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
   });
+
+  return {
+    ...mutation,
+    mutate: mutation.trigger,
+    mutateAsync: mutation.trigger,
+  };
 }
 
 export function useUpdateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateUserInput }) => {
-      const res = await apiClient.api.users[":id"].$put({ param: { id }, json: data });
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation(
+    USERS_KEY,
+    async (_key: string, { arg }: { arg: { id: string; data: UpdateUserInput } }) => {
+      const res = await apiClient.api.users[":id"].$put({ param: { id: arg.id }, json: arg.data });
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
-  });
+    {
+      onSuccess: () => {
+        void mutate(USERS_KEY);
+      },
+    }
+  );
+
+  return {
+    ...mutation,
+    mutate: mutation.trigger,
+    mutateAsync: mutation.trigger,
+  };
 }
 
 export function useDeleteUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await apiClient.api.users[":id"].$delete({ param: { id } });
-      return res.json();
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation(USERS_KEY, async (_key: string, { arg }: { arg: string }) => {
+    const res = await apiClient.api.users[":id"].$delete({ param: { id: arg } });
+    return res.json();
+  }, {
+    onSuccess: () => {
+      void mutate(USERS_KEY);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
   });
+
+  return {
+    ...mutation,
+    mutate: mutation.trigger,
+    mutateAsync: mutation.trigger,
+  };
 }
