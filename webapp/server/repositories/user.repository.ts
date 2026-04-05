@@ -18,17 +18,66 @@ export class UserRepository {
     return resource ?? null;
   }
 
+  async findByUserId(userId: string): Promise<User | null> {
+    const container = getContainer();
+    const { resources } = await container.items
+      .query<User>({
+        query: "SELECT * FROM c WHERE c.type = 'user' AND c.userId = @userId",
+        parameters: [{ name: "@userId", value: userId }],
+      })
+      .fetchAll();
+    return resources[0] ?? null;
+  }
+
+  async findByMsalIdentity(tenantId: string, oid: string, email?: string): Promise<User | null> {
+    const container = getContainer();
+
+    if (!email) {
+      const { resources } = await container.items
+        .query<User>({
+          query: `SELECT * FROM c
+                  WHERE c.type = 'user'
+                    AND c.msalTenantId = @tenantId
+                    AND c.msalOid = @oid`,
+          parameters: [
+            { name: "@tenantId", value: tenantId },
+            { name: "@oid", value: oid },
+          ],
+        })
+        .fetchAll();
+      return resources[0] ?? null;
+    }
+
+    const { resources } = await container.items
+      .query<User>({
+        query: `SELECT * FROM c
+                WHERE c.type = 'user'
+                  AND (
+                    (c.msalTenantId = @tenantId AND c.msalOid = @oid)
+                    OR (IS_DEFINED(c.msalEmail) AND LOWER(c.msalEmail) = @email)
+                  )`,
+        parameters: [
+          { name: "@tenantId", value: tenantId },
+          { name: "@oid", value: oid },
+          { name: "@email", value: email.toLowerCase() },
+        ],
+      })
+      .fetchAll();
+    return resources[0] ?? null;
+  }
+
   /**
    * 新規ユーザーを作成します。
    * ID や作成日時は呼び出し元に任せず repository 側で付与すると、保存ルールを一元化できます。
    */
   async create(data: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> {
     const container = getContainer();
+    const now = new Date().toISOString();
     const user: User = {
       ...data,
       id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     };
     const { resource } = await container.items.create<User>(user);
     return resource!;

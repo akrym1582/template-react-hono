@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { createUserSchema, updateUserSchema } from "../../../webapp/shared/validators/index.js";
+import {
+  createUserSchema,
+  localLoginSchema,
+  msalLoginSchema,
+  updateUserSchema,
+} from "../../../webapp/shared/validators/index.js";
 
 describe("createUserSchema", () => {
   it("validates valid input", () => {
@@ -46,5 +51,23 @@ describe("updateUserSchema", () => {
   it("rejects invalid email in update", () => {
     const result = updateUserSchema.safeParse({ email: "not-an-email" });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("localLoginSchema", () => {
+  it("requires both userId and password", () => {
+    expect(localLoginSchema.safeParse({ userId: "demo", password: "secret" }).success).toBe(true);
+    expect(localLoginSchema.safeParse({ userId: "", password: "secret" }).success).toBe(false);
+    expect(localLoginSchema.safeParse({ userId: "demo", password: "" }).success).toBe(false);
+  });
+});
+
+describe("msalLoginSchema", () => {
+  it("accepts an id token", () => {
+    expect(msalLoginSchema.safeParse({ idToken: "token" }).success).toBe(true);
+  });
+
+  it("rejects empty payloads", () => {
+    expect(msalLoginSchema.safeParse({}).success).toBe(false);
   });
 });

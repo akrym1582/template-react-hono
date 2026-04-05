@@ -9,8 +9,10 @@ import { useUsers } from "@client/hooks/use-users.js";
 vi.mock("@client/hooks/use-auth.js", () => ({
   useAuth: vi.fn().mockReturnValue({
     isAuthenticated: false,
+    isLoading: false,
     user: null,
-    login: vi.fn(),
+    loginWithPassword: vi.fn(),
+    loginWithMsal: vi.fn(),
     logout: vi.fn(),
   }),
 }));

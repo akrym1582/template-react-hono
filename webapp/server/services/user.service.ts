@@ -26,12 +26,26 @@ export class UserService {
 
   /** 作成時に template 用の共通属性 `type` を補ってから永続化します。 */
   async create(data: CreateUserInput): Promise<User> {
-    return this.repo.create({ ...data, type: "user" });
+    return this.repo.create({
+      ...data,
+      type: "user",
+      userId: data.email,
+      displayName: data.name,
+      hasLocalPassword: false,
+      roles: ["viewer"],
+      isActive: true,
+      sessionVersion: 0,
+    });
   }
 
   /** 更新処理です。事前チェックや監査ログが必要になったらここに追加していきます。 */
   async update(id: string, data: UpdateUserInput): Promise<User | null> {
-    return this.repo.update(id, data);
+    const updatePayload = {
+      ...data,
+      ...(data.name ? { displayName: data.name } : {}),
+      ...(data.email ? { userId: data.email } : {}),
+    };
+    return this.repo.update(id, updatePayload);
   }
 
   /** 削除処理です。論理削除に切り替えたい場合もこのメソッドが拡張ポイントになります。 */
