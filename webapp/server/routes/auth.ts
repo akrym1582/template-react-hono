@@ -8,13 +8,9 @@ type AuthVariables = {
   };
 };
 
-const app = new Hono<AuthVariables>();
-
-app.get("/me", authMiddleware, (c) => {
+export const authRoute = new Hono<AuthVariables>().get("/me", authMiddleware, (c) => {
   return c.json({
     userId: c.get("userId"),
     userEmail: c.get("userEmail"),
   });
 });
-
-export const authRoute = app;

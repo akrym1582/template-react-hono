@@ -12,10 +12,6 @@ export default defineConfig({
     root: testsDir,
     include: ["unit/**/*.test.{ts,tsx}"],
     setupFiles: [path.resolve(testsDir, "setup.ts")],
-    environmentMatchGlobs: [
-      ["**/client/**/*.test.{ts,tsx}", "jsdom"],
-      ["**/components/**/*.test.{ts,tsx}", "jsdom"],
-    ],
     alias: {
       "@shared": path.resolve(testsDir, "../webapp/shared"),
       "@client": path.resolve(testsDir, "../webapp/client"),
