@@ -1,3 +1,5 @@
+import React from "react";
+import { NavLink } from "react-router-dom";
 import { cn } from "../../lib/utils.js";
 
 interface SidebarProps {
@@ -8,18 +10,29 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <aside className={cn("w-64 border-r bg-background p-4", className)}>
       <nav className="space-y-1">
-        <a
-          href="/"
-          className="flex items-center px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground"
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            cn(
+              "flex items-center px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground",
+              isActive && "bg-accent text-accent-foreground"
+            )
+          }
         >
           Dashboard
-        </a>
-        <a
-          href="/dashboard"
-          className="flex items-center px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground"
+        </NavLink>
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground",
+              isActive && "bg-accent text-accent-foreground"
+            )
+          }
         >
           Users
-        </a>
+        </NavLink>
       </nav>
     </aside>
   );

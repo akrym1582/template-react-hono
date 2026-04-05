@@ -1,19 +1,26 @@
-import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { Route as rootRoute } from "./routes/__root.js";
-import { Route as indexRoute } from "./routes/index.js";
-import { Route as loginRoute } from "./routes/login.js";
-import { Route as dashboardRoute } from "./routes/dashboard.js";
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { RootRoute } from "./routes/__root.js";
+import { IndexPage } from "./routes/index.js";
+import { LoginPage } from "./routes/login.js";
+import { DashboardPage } from "./routes/dashboard.js";
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, dashboardRoute]);
-
-const router = createRouter({ routeTree });
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route element={<RootRoute />}>
+        <Route index element={<IndexPage />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
 }
