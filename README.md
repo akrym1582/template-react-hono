@@ -50,7 +50,7 @@ Azure App Service (:3000)
 ## セットアップ
 
 ```bash
-cd /home/runner/work/template-react-hono/template-react-hono/webapp
+cd webapp
 cp .env.example .env
 npm install --legacy-peer-deps
 ```
