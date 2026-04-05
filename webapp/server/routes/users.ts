@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { UserService } from "../services/user.service.js";
 import {
   createUserSchema,
   updateUserSchema,
 } from "../../shared/validators/index.js";
+import { serverServiceProvider } from "../lib/service-provider.js";
 import {
   sessionAuthMiddleware,
   type SessionAuthVariables,
@@ -20,7 +20,7 @@ import {
  * 新しい CRUD API を追加するときは、このファイルの構成をそのまま手本にすると
  * 「認証 → バリデーション → サービス呼び出し」の流れを再利用できます。
  */
-const userService = new UserService();
+const userService = serverServiceProvider.getUserService();
 
 export const usersRoute = new Hono<SessionAuthVariables>()
   /** 一覧取得です。画面表示用に複数件をまとめて返します。 */

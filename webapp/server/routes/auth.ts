@@ -3,6 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import type { AuthResponse, CurrentSessionResponse } from "../../shared/types/index.js";
 import { localLoginSchema, msalLoginSchema } from "../../shared/validators/index.js";
 import { clearSessionCookie, setSessionCookie } from "../lib/auth/session.js";
+import { serverServiceProvider } from "../lib/service-provider.js";
 import { logger } from "../lib/logger.js";
 import {
   getRequestAuthUser,
@@ -10,7 +11,7 @@ import {
 } from "../middleware/session-auth.js";
 import { AuthService, isAuthError } from "../services/auth.service.js";
 
-const authService = new AuthService();
+const authService = serverServiceProvider.getAuthService();
 
 function handleAuthError(c: Context, error: unknown) {
   if (isAuthError(error)) {
