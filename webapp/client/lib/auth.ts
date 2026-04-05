@@ -28,10 +28,12 @@ export const loginRequest = {
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => null)) as T | { error?: string } | null;
   if (!response.ok) {
-    const message = body && typeof body === "object" && "error" in body && typeof body.error === "string"
-      ? body.error
-      : "Authentication request failed";
-    throw new Error(message);
+    const errorMessage =
+      body && typeof body === "object" && "error" in body && typeof body.error === "string"
+        ? body.error
+        : null;
+
+    throw new Error(errorMessage ?? "Authentication request failed");
   }
   return body as T;
 }

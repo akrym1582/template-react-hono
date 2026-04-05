@@ -31,25 +31,38 @@ export class UserRepository {
 
   async findByMsalIdentity(tenantId: string, oid: string, email?: string): Promise<User | null> {
     const container = getContainer();
-    const parameters = [
-      { name: "@tenantId", value: tenantId },
-      { name: "@oid", value: oid },
-      { name: "@email", value: email?.toLowerCase() ?? "" },
-    ];
 
-    const query = email
-      ? `SELECT * FROM c
-         WHERE c.type = 'user'
-           AND (
-             (c.msalTenantId = @tenantId AND c.msalOid = @oid)
-             OR (IS_DEFINED(c.msalEmail) AND LOWER(c.msalEmail) = @email)
-           )`
-      : `SELECT * FROM c
-         WHERE c.type = 'user'
-           AND c.msalTenantId = @tenantId
-           AND c.msalOid = @oid`;
+    if (!email) {
+      const { resources } = await container.items
+        .query<User>({
+          query: `SELECT * FROM c
+                  WHERE c.type = 'user'
+                    AND c.msalTenantId = @tenantId
+                    AND c.msalOid = @oid`,
+          parameters: [
+            { name: "@tenantId", value: tenantId },
+            { name: "@oid", value: oid },
+          ],
+        })
+        .fetchAll();
+      return resources[0] ?? null;
+    }
 
-    const { resources } = await container.items.query<User>({ query, parameters }).fetchAll();
+    const { resources } = await container.items
+      .query<User>({
+        query: `SELECT * FROM c
+                WHERE c.type = 'user'
+                  AND (
+                    (c.msalTenantId = @tenantId AND c.msalOid = @oid)
+                    OR (IS_DEFINED(c.msalEmail) AND LOWER(c.msalEmail) = @email)
+                  )`,
+        parameters: [
+          { name: "@tenantId", value: tenantId },
+          { name: "@oid", value: oid },
+          { name: "@email", value: email.toLowerCase() },
+        ],
+      })
+      .fetchAll();
     return resources[0] ?? null;
   }
 

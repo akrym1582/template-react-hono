@@ -1,10 +1,15 @@
 import type { Context } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { jwtVerify, SignJWT } from "jose";
-import type { SessionJwtPayload, SessionUser } from "../../../shared/types/index.js";
+import type {
+  SessionJwtPayload,
+  SessionUser,
+  UserRole,
+} from "../../../shared/types/index.js";
 import { env } from "../env.js";
 
 const secret = new TextEncoder().encode(env.AUTH_JWT_SECRET);
+const allowedRoles: UserRole[] = ["admin", "manager", "operator", "viewer"];
 
 function getCookieOptions() {
   return {
@@ -14,6 +19,16 @@ function getCookieOptions() {
     path: "/",
     maxAge: env.AUTH_COOKIE_MAX_AGE,
   };
+}
+
+function parseRoles(value: unknown): UserRole[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(
+    (role): role is UserRole => typeof role === "string" && allowedRoles.includes(role as UserRole)
+  );
 }
 
 export async function createSessionToken(user: SessionUser): Promise<string> {
@@ -46,7 +61,7 @@ export async function verifySessionToken(token: string): Promise<SessionJwtPaylo
     email: typeof payload.email === "string" ? payload.email : undefined,
     displayName:
       typeof payload.displayName === "string" ? payload.displayName : undefined,
-    roles: Array.isArray(payload.roles) ? payload.roles.filter((role): role is string => typeof role === "string") : [],
+    roles: parseRoles(payload.roles),
     loginProvider:
       payload.loginProvider === "local" || payload.loginProvider === "msal"
         ? payload.loginProvider
