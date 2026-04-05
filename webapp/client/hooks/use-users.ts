@@ -2,11 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/api-client.js";
 import type { CreateUserInput, UpdateUserInput } from "../../shared/validators/index.js";
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export function useUsers() {
-  return useQuery({
+  return useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
       const res = await apiClient.api.users.$get();
+      if (!res.ok) {
+        throw new Error("Failed to load users");
+      }
       return res.json();
     },
   });
