@@ -27,21 +27,18 @@ export const loginRequest = {
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   let body: T | { error?: string } | null = null;
-  let hasJsonBody = true;
 
   try {
     body = (await response.json()) as T | { error?: string };
   } catch {
-    hasJsonBody = false;
+    body = null;
   }
 
   if (!response.ok) {
     const errorMessage =
       body && typeof body === "object" && "error" in body && typeof body.error === "string"
         ? body.error
-        : hasJsonBody
-          ? "Authentication request failed"
-          : "Authentication request failed because the server returned invalid JSON";
+        : "Authentication request failed";
 
     throw new Error(errorMessage);
   }

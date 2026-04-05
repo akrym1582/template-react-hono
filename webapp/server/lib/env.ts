@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const developmentJwtSecret = "development-session-secret";
+const developmentJwtSecret = "development-session-secret-change-me-32-bytes-minimum";
 
 /**
  * サーバー起動時に環境変数をまとめて検証します。

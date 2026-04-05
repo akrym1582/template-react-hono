@@ -3,6 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import type { AuthResponse, CurrentSessionResponse } from "../../shared/types/index.js";
 import { localLoginSchema, msalLoginSchema } from "../../shared/validators/index.js";
 import { clearSessionCookie, setSessionCookie } from "../lib/auth/session.js";
+import { logger } from "../lib/logger.js";
 import {
   getRequestAuthUser,
   type SessionAuthVariables,
@@ -16,6 +17,11 @@ function handleAuthError(c: Context, error: unknown) {
     return c.json({ error: error.message }, { status: error.status });
   }
 
+  logger.error("Authentication route failed", {
+    error: error instanceof Error ? error.message : String(error),
+    path: c.req.path,
+    method: c.req.method,
+  });
   return c.json({ error: "Authentication failed" }, 500);
 }
 
