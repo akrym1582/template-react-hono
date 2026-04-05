@@ -7,6 +7,10 @@ type AuthVariables = {
   userEmail: string;
 };
 
+/**
+ * Bearer トークンを検証し、後続処理で使えるユーザー情報を context に保存します。
+ * 「認証が必要な API」を増やすときは、この middleware を付けるだけで共通の検証処理を再利用できます。
+ */
 export const authMiddleware = createMiddleware<{ Variables: AuthVariables }>(
   async (c, next) => {
     const authorization = c.req.header("Authorization");
@@ -23,6 +27,7 @@ export const authMiddleware = createMiddleware<{ Variables: AuthVariables }>(
     }
 
     try {
+      /** Azure Entra ID の公開鍵を取得し、その鍵で JWT を検証します。 */
       const jwksUrl = new URL(
         `https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`
       );
@@ -33,6 +38,7 @@ export const authMiddleware = createMiddleware<{ Variables: AuthVariables }>(
         issuer: `https://login.microsoftonline.com/${tenantId}/v2.0`,
       });
 
+      /** 後続の route / service で利用しやすいよう、必要最小限の値だけ context に保存します。 */
       c.set("userId", (payload.oid as string) ?? "");
       c.set("userEmail", (payload.preferred_username as string) ?? "");
 
