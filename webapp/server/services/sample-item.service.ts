@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import type { SampleItem, SearchPage } from "../../shared/types/index.js";
 import type {
   CreateSampleItemInput,
@@ -6,11 +7,12 @@ import type {
 } from "../../shared/validators/index.js";
 import { SampleItemRepository } from "../repositories/sample-item.repository.js";
 
+@injectable()
 export class SampleItemService {
   private readonly repo: SampleItemRepository;
 
-  constructor(repo?: SampleItemRepository) {
-    this.repo = repo ?? new SampleItemRepository();
+  constructor(repo: SampleItemRepository) {
+    this.repo = repo;
   }
 
   async search(input: SampleItemSearchInput): Promise<SearchPage<SampleItem>> {

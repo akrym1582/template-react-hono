@@ -1,18 +1,20 @@
+import { injectable } from "inversify";
 import type { User } from "../../shared/types/index.js";
 import type { CreateUserInput, UpdateUserInput } from "../../shared/validators/index.js";
 import { normalizeEmail } from "../lib/normalize.js";
 import { UserRepository } from "../repositories/user.repository.js";
 
+@injectable()
 export class UserService {
   private readonly repo: UserRepository;
 
   /**
    * Service は「画面や API から見た業務処理のまとまり」です。
-   * 引数で repository を受け取れるようにしておくと、テスト時に差し替えやすくなります。
+   * InversifyJS のコンテナから repository が注入されます。
    * 今後ルールが増えたら、route ではなくこの層に集めると責務が分かりやすく保てます。
    */
-  constructor(repo?: UserRepository) {
-    this.repo = repo ?? new UserRepository();
+  constructor(repo: UserRepository) {
+    this.repo = repo;
   }
 
   /** 一覧取得の業務処理です。必要になれば並び順や検索条件をここで追加します。 */

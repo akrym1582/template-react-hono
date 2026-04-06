@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import type { TableEntityResult } from "@azure/data-tables";
 import { env } from "../lib/env.js";
 import { normalizeEmail } from "../lib/normalize.js";
@@ -104,6 +105,7 @@ async function readFirstEntity(filter: string): Promise<User | null> {
   return null;
 }
 
+@injectable()
 export class UserRepository {
   async findAll(): Promise<User[]> {
     const tableClient = getTableClient(env.USER_TABLE_NAME);

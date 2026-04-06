@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist/server",
     "rootDir": ".",
-    "types": ["node"]
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["server", "shared"]
 }

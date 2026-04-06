@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import type { SqlQuerySpec } from "@azure/cosmos";
 import type { SampleItem, SearchPage } from "../../shared/types/index.js";
 import type { CreateSampleItemInput, SampleItemSearchInput, UpdateSampleItemInput } from "../../shared/validators/index.js";
@@ -30,6 +31,7 @@ function buildSearchQuery(
   };
 }
 
+@injectable()
 export class SampleItemRepository {
   async search(input: SampleItemSearchInput): Promise<SearchPage<SampleItem>> {
     const container = getContainer();
