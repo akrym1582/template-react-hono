@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 import type { SessionUser, UserRole } from "../../shared/types/index.js";
 import { getSessionToken, verifySessionToken } from "../lib/auth/session.js";
+import { serverContainer } from "../container.js";
 import { UserRepository } from "../repositories/user.repository.js";
 
 export type SessionAuthVariables = {
@@ -12,7 +13,7 @@ export type SessionAuthVariables = {
   };
 };
 
-const userRepository = new UserRepository();
+const userRepository = serverContainer.get(UserRepository);
 
 async function resolveAuthUser(c: Context): Promise<SessionUser | null> {
   const token = getSessionToken(c);
