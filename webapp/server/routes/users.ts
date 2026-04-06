@@ -9,6 +9,7 @@ import {
   sessionAuthMiddleware,
   type SessionAuthVariables,
 } from "../middleware/session-auth.js";
+import { serverContainer } from "../container.js";
 
 /**
  * ルート層では「HTTP の入出力」を担当します。
@@ -20,7 +21,7 @@ import {
  * 新しい CRUD API を追加するときは、このファイルの構成をそのまま手本にすると
  * 「認証 → バリデーション → サービス呼び出し」の流れを再利用できます。
  */
-const userService = new UserService();
+const userService = serverContainer.get(UserService);
 
 export const usersRoute = new Hono<SessionAuthVariables>()
   /** 一覧取得です。画面表示用に複数件をまとめて返します。 */

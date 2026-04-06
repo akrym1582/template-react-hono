@@ -8,9 +8,10 @@ import {
   getRequestAuthUser,
   type SessionAuthVariables,
 } from "../middleware/session-auth.js";
+import { serverContainer } from "../container.js";
 import { AuthService, isAuthError } from "../services/auth.service.js";
 
-const authService = new AuthService();
+const authService = serverContainer.get(AuthService);
 
 function handleAuthError(c: Context, error: unknown) {
   if (isAuthError(error)) {
