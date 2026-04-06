@@ -1,9 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { AuthProvider } from "./providers/auth-provider.js";
+import { LoadingProvider } from "./providers/loading-provider.js";
 import { SWRProvider } from "./providers/swr-provider.js";
 import { App } from "./App.js";
 import "./styles/globals.css";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Root element not found");
@@ -16,9 +18,11 @@ if (!root) throw new Error("Root element not found");
 createRoot(root).render(
   <StrictMode>
     <AuthProvider>
-      <SWRProvider>
-        <App />
-      </SWRProvider>
+      <LoadingProvider>
+        <SWRProvider>
+          <App />
+        </SWRProvider>
+      </LoadingProvider>
     </AuthProvider>
   </StrictMode>
 );

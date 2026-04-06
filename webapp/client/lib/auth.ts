@@ -4,6 +4,7 @@ import type {
   CurrentSessionResponse,
 } from "../../shared/types/index.js";
 import type { LocalLoginInput } from "../../shared/validators/index.js";
+import { parseApiResponse } from "./api-response.js";
 
 /** MSAL の基本設定です。Azure Entra ID との接続先をここでまとめて定義します。 */
 const msalConfig: Configuration = {
@@ -25,26 +26,6 @@ export const loginRequest = {
   scopes: ["openid", "profile", "email"],
 };
 
-async function parseJsonResponse<T>(response: Response): Promise<T> {
-  let body: T | { error?: string } | null = null;
-
-  try {
-    body = (await response.json()) as T | { error?: string };
-  } catch {
-    body = null;
-  }
-
-  if (!response.ok) {
-    const errorMessage =
-      body && typeof body === "object" && "error" in body && typeof body.error === "string"
-        ? body.error
-        : "Authentication request failed";
-
-    throw new Error(errorMessage);
-  }
-  return body as T;
-}
-
 export async function loginWithPasswordRequest(input: LocalLoginInput): Promise<AuthResponse> {
   const response = await fetch("/api/auth/login", {
     method: "POST",
@@ -55,7 +36,7 @@ export async function loginWithPasswordRequest(input: LocalLoginInput): Promise<
     body: JSON.stringify(input),
   });
 
-  return parseJsonResponse<AuthResponse>(response);
+  return parseApiResponse<AuthResponse>(response, "Authentication request failed");
 }
 
 export async function exchangeMsalIdToken(idToken: string): Promise<AuthResponse> {
@@ -68,7 +49,7 @@ export async function exchangeMsalIdToken(idToken: string): Promise<AuthResponse
     body: JSON.stringify({ idToken }),
   });
 
-  return parseJsonResponse<AuthResponse>(response);
+  return parseApiResponse<AuthResponse>(response, "Authentication request failed");
 }
 
 export async function fetchCurrentSession(): Promise<CurrentSessionResponse> {
@@ -76,7 +57,7 @@ export async function fetchCurrentSession(): Promise<CurrentSessionResponse> {
     credentials: "include",
   });
 
-  return parseJsonResponse<CurrentSessionResponse>(response);
+  return parseApiResponse<CurrentSessionResponse>(response, "Authentication request failed");
 }
 
 export async function logoutSession(): Promise<void> {
@@ -85,5 +66,5 @@ export async function logoutSession(): Promise<void> {
     credentials: "include",
   });
 
-  await parseJsonResponse<{ ok: true }>(response);
+  await parseApiResponse<{ ok: true }>(response, "Authentication request failed");
 }

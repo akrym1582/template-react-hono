@@ -1,4 +1,5 @@
 import { createMiddleware } from "hono/factory";
+import { getErrorMessage, getErrorStatus } from "../lib/errors.js";
 import { logger } from "../lib/logger.js";
 
 /**
@@ -9,11 +10,16 @@ export const errorMiddleware = createMiddleware(async (c, next) => {
   try {
     await next();
   } catch (err) {
+    const message = getErrorMessage(err);
+    const status = getErrorStatus(err);
     logger.error("Unhandled error", {
-      error: err instanceof Error ? err.message : String(err),
+      error: message,
       path: c.req.path,
       method: c.req.method,
+      status,
     });
-    return c.json({ error: "Internal Server Error" }, 500);
+    return c.body(JSON.stringify({ message }), status as never, {
+      "Content-Type": "application/json",
+    });
   }
 });

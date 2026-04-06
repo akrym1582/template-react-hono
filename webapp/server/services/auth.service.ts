@@ -8,14 +8,15 @@ import type { LocalLoginInput, MsalLoginInput } from "../../shared/validators/in
 import { verifyMsalIdToken } from "../lib/auth/msal.js";
 import { verifyPassword } from "../lib/auth/password.js";
 import { createSessionToken } from "../lib/auth/session.js";
+import { AppError } from "../lib/errors.js";
 import { UserRepository } from "../repositories/user.repository.js";
 
-class AuthError extends Error {
+class AuthError extends AppError {
   constructor(
     message: string,
     readonly status: 401 | 403 | 500
   ) {
-    super(message);
+    super(message, status);
     this.name = "AuthError";
   }
 }

@@ -25,6 +25,7 @@ const envSchema = z.object({
   COSMOS_DATABASE: z.string().optional(),
   COSMOS_CONTAINER: z.string().optional(),
   STORAGE_CONNECTION_STRING: z.string().optional(),
+  USER_TABLE_NAME: z.string().min(1).default("Users"),
 });
 
 /** import された時点で検証するため、不正な設定のまま処理が進むのを防げます。 */

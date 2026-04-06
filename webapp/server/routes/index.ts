@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { healthRoute } from "./health.js";
 import { authRoute } from "./auth.js";
+import { sampleItemsRoute } from "./sample-items.js";
 import { usersRoute } from "./users.js";
 
 /**
@@ -11,6 +12,7 @@ import { usersRoute } from "./users.js";
 const routes = new Hono()
   .route("/api/health", healthRoute)
   .route("/api/auth", authRoute)
+  .route("/api/sample-items", sampleItemsRoute)
   .route("/api/users", usersRoute);
 
 export { routes };

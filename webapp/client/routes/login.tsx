@@ -1,36 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth.js";
+import { useExecApiHandling } from "../hooks/use-exec-api-handling.js";
 import { Button } from "../components/ui/button.js";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const execApiHandling = useExecApiHandling();
   const { loginWithMsal, loginWithPassword, isLoading } = useAuth();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   const handleLocalLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
-
-    try {
+    await execApiHandling(async () => {
       await loginWithPassword({ userId, password });
       navigate("/dashboard");
-    } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : "Login failed");
-    }
+    });
   };
 
   const handleMsalLogin = async () => {
-    setError(null);
-
-    try {
+    await execApiHandling(async () => {
       await loginWithMsal();
       navigate("/dashboard");
-    } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : "Login failed");
-    }
+    });
   };
 
   return (
@@ -82,8 +75,6 @@ export function LoginPage() {
         <Button className="w-full" variant="outline" onClick={() => void handleMsalLogin()} disabled={isLoading}>
           Sign in with Microsoft
         </Button>
-
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
       </div>
     </div>
   );
