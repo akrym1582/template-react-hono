@@ -4,10 +4,14 @@ import { UserRepository } from "./repositories/user.repository.js";
 import { AuthService } from "./services/auth.service.js";
 import { UserService } from "./services/user.service.js";
 
-const userRepository = new UserRepository();
-
 export const serverContainer = new Container();
 
-serverContainer.bind(UserRepository).toConstantValue(userRepository);
-serverContainer.bind(UserService).toConstantValue(new UserService(userRepository));
-serverContainer.bind(AuthService).toConstantValue(new AuthService(userRepository));
+serverContainer.bind(UserRepository).toDynamicValue(() => new UserRepository()).inSingletonScope();
+serverContainer
+  .bind(UserService)
+  .toDynamicValue((context) => new UserService(context.get(UserRepository)))
+  .inSingletonScope();
+serverContainer
+  .bind(AuthService)
+  .toDynamicValue((context) => new AuthService(context.get(UserRepository)))
+  .inSingletonScope();
