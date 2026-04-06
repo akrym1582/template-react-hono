@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import type {
   AuthResponse,
   LoginProvider,
@@ -22,11 +23,12 @@ class AuthError extends AppError {
   }
 }
 
+@injectable()
 export class AuthService {
   private readonly repo: UserRepository;
 
-  constructor(repo?: UserRepository) {
-    this.repo = repo ?? new UserRepository();
+  constructor(repo: UserRepository) {
+    this.repo = repo;
   }
 
   async loginWithPassword(input: LocalLoginInput) {
