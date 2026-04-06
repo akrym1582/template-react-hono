@@ -1,5 +1,6 @@
 import type { TableEntityResult } from "@azure/data-tables";
 import { env } from "../lib/env.js";
+import { normalizeEmail } from "../lib/normalize.js";
 import type { User } from "../../shared/types/index.js";
 import { getTableClient } from "./table.js";
 
@@ -23,6 +24,14 @@ interface UserTableEntity {
   sessionVersion: number;
   createdAt: string;
   updatedAt: string;
+}
+
+function toODataString(value: string): string {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+function buildUserFilter(...conditions: string[]): string {
+  return conditions.join(" and ");
 }
 
 function compactEntity<T extends Record<string, unknown>>(value: T): T {
@@ -74,7 +83,7 @@ function toEntity(user: User): UserTableEntity {
     hasLocalPassword: user.hasLocalPassword,
     msalOid: user.msalOid,
     msalTenantId: user.msalTenantId,
-    msalEmail: user.msalEmail?.toLowerCase(),
+    msalEmail: normalizeEmail(user.msalEmail),
     rolesJson: JSON.stringify(user.roles ?? []),
     isActive: user.isActive,
     sessionVersion: user.sessionVersion,
@@ -124,17 +133,21 @@ export class UserRepository {
   }
 
   async findByUserId(userId: string): Promise<User | null> {
-    return readFirstEntity(
-      `PartitionKey eq '${USER_PARTITION_KEY}' and userId eq '${userId.replace(/'/g, "''")}'`
+    return readFirstEntity(buildUserFilter(
+      `PartitionKey eq ${toODataString(USER_PARTITION_KEY)}`,
+      `userId eq ${toODataString(userId)}`
+    )
     );
   }
 
   async findByMsalIdentity(tenantId: string, oid: string, email?: string): Promise<User | null> {
     const emailFilter = email
-      ? ` or msalEmail eq '${email.replace(/'/g, "''").toLowerCase()}'`
+      ? ` or msalEmail eq ${toODataString(normalizeEmail(email) ?? "")}`
       : "";
-    return readFirstEntity(
-      `PartitionKey eq '${USER_PARTITION_KEY}' and ((msalTenantId eq '${tenantId.replace(/'/g, "''")}' and msalOid eq '${oid.replace(/'/g, "''")}')${emailFilter})`
+    return readFirstEntity(buildUserFilter(
+      `PartitionKey eq ${toODataString(USER_PARTITION_KEY)}`,
+      `((msalTenantId eq ${toODataString(tenantId)} and msalOid eq ${toODataString(oid)})${emailFilter})`
+    )
     );
   }
 

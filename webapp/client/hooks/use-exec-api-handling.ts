@@ -13,13 +13,14 @@ function clearCookie(name: string) {
 
 async function waitForCookie(name: string, timeoutMs: number) {
   const startedAt = Date.now();
+  const pollingIntervalMs = 500;
 
   while (Date.now() - startedAt < timeoutMs) {
     if (hasCookie(name)) {
       clearCookie(name);
       return;
     }
-    await new Promise((resolve) => window.setTimeout(resolve, 200));
+    await new Promise((resolve) => window.setTimeout(resolve, pollingIntervalMs));
   }
 
   throw new Error("Download did not complete in time");

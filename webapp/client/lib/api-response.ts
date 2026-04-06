@@ -16,8 +16,9 @@ export async function parseApiResponse<T>(
   fallbackMessage = "Request failed"
 ): Promise<T> {
   const body = await readResponseBody(response);
-  const isOk = "ok" in response ? response.ok : true;
-  const status = "status" in response && typeof response.status === "number" ? response.status : 500;
+  const status =
+    "status" in response && typeof response.status === "number" ? response.status : 200;
+  const isOk = "ok" in response ? response.ok : status < 400;
 
   if (!isOk) {
     const message =

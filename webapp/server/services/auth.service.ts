@@ -6,6 +6,7 @@ import type {
 } from "../../shared/types/index.js";
 import type { LocalLoginInput, MsalLoginInput } from "../../shared/validators/index.js";
 import { verifyMsalIdToken } from "../lib/auth/msal.js";
+import { normalizeEmail } from "../lib/normalize.js";
 import { verifyPassword } from "../lib/auth/password.js";
 import { createSessionToken } from "../lib/auth/session.js";
 import { AppError } from "../lib/errors.js";
@@ -29,7 +30,7 @@ export class AuthService {
   }
 
   async loginWithPassword(input: LocalLoginInput) {
-    const user = await this.repo.findByUserId(input.userId);
+    const user = await this.repo.findByUserId(normalizeEmail(input.userId) ?? input.userId);
     if (!user || !user.passwordHash || !user.hasLocalPassword) {
       throw new AuthError("Invalid user ID or password", 401);
     }

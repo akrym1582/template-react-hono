@@ -12,7 +12,7 @@ function buildSearchQuery(
 
   if (input.keyword) {
     conditions.push(
-      "(CONTAINS(LOWER(c.code), @keyword) OR CONTAINS(LOWER(c.name), @keyword) OR CONTAINS(LOWER(c.description), @keyword))"
+      "(CONTAINS(LOWER(c.code), @keyword) OR CONTAINS(LOWER(c.name), @keyword) OR (IS_DEFINED(c.description) AND CONTAINS(LOWER(c.description), @keyword)))"
     );
     parameters.push({ name: "@keyword", value: input.keyword.toLowerCase() });
   }
@@ -35,8 +35,8 @@ export class SampleItemRepository {
     const container = getContainer();
     const limit = input.limit ?? 20;
     const offset = Number(input.cursor ?? "0");
-  const query = buildSearchQuery(input, true);
-  (query.parameters ??= []).push(
+    const query = buildSearchQuery(input, true);
+    (query.parameters ??= []).push(
       { name: "@offset", value: offset },
       { name: "@limit", value: limit }
     );
