@@ -3,6 +3,7 @@ import type {
   AuthResponse,
   CurrentSessionResponse,
 } from "../../shared/types/index.js";
+import { AUTH_ROUTE } from "../../shared/constants/routes.js";
 import type { LocalLoginInput } from "../../shared/validators/index.js";
 import { parseApiResponse } from "./api-response.js";
 
@@ -27,7 +28,7 @@ export const loginRequest = {
 };
 
 export async function loginWithPasswordRequest(input: LocalLoginInput): Promise<AuthResponse> {
-  const response = await fetch("/api/auth/login", {
+  const response = await fetch(`${AUTH_ROUTE.base}/${AUTH_ROUTE.login}`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -40,7 +41,7 @@ export async function loginWithPasswordRequest(input: LocalLoginInput): Promise<
 }
 
 export async function exchangeMsalIdToken(idToken: string): Promise<AuthResponse> {
-  const response = await fetch("/api/auth/msal/login", {
+  const response = await fetch(`${AUTH_ROUTE.base}/${AUTH_ROUTE.msal}/${AUTH_ROUTE.login}`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -53,7 +54,7 @@ export async function exchangeMsalIdToken(idToken: string): Promise<AuthResponse
 }
 
 export async function fetchCurrentSession(): Promise<CurrentSessionResponse> {
-  const response = await fetch("/api/auth/me", {
+  const response = await fetch(`${AUTH_ROUTE.base}/${AUTH_ROUTE.me}`, {
     credentials: "include",
   });
 
@@ -61,7 +62,7 @@ export async function fetchCurrentSession(): Promise<CurrentSessionResponse> {
 }
 
 export async function logoutSession(): Promise<void> {
-  const response = await fetch("/api/auth/logout", {
+  const response = await fetch(`${AUTH_ROUTE.base}/${AUTH_ROUTE.logout}`, {
     method: "POST",
     credentials: "include",
   });
