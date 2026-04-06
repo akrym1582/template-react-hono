@@ -1,5 +1,6 @@
 import React from "react";
-import { useUsers, type User } from "../hooks/use-users.js";
+import { useUsers } from "../hooks/use-users.js";
+import type { User } from "../../shared/types/index.js";
 
 export function DashboardPage() {
   const { data: users = [], isLoading, isError } = useUsers();

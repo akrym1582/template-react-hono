@@ -4,6 +4,8 @@ import { RootRoute } from "./routes/__root.js";
 import { IndexPage } from "./routes/index.js";
 import { LoginPage } from "./routes/login.js";
 import { DashboardPage } from "./routes/dashboard.js";
+import { SampleDetailPage } from "./routes/sample-detail.js";
+import { SampleListPage } from "./routes/sample-list.js";
 
 /**
  * 画面遷移の定義をまとめる場所です。
@@ -16,6 +18,9 @@ export function AppRoutes() {
         <Route index element={<IndexPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="samples" element={<SampleListPage />} />
+        <Route path="samples/new" element={<SampleDetailPage />} />
+        <Route path="samples/:id" element={<SampleDetailPage />} />
       </Route>
     </Routes>
   );

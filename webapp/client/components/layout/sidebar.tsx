@@ -33,6 +33,17 @@ export function Sidebar({ className }: SidebarProps) {
         >
           Users
         </NavLink>
+        <NavLink
+          to="/samples"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground",
+              isActive && "bg-accent text-accent-foreground"
+            )
+          }
+        >
+          SampleList
+        </NavLink>
       </nav>
     </aside>
   );

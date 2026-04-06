@@ -1,5 +1,6 @@
 import type { User } from "../../shared/types/index.js";
 import type { CreateUserInput, UpdateUserInput } from "../../shared/validators/index.js";
+import { normalizeEmail } from "../lib/normalize.js";
 import { UserRepository } from "../repositories/user.repository.js";
 
 export class UserService {
@@ -26,10 +27,12 @@ export class UserService {
 
   /** 作成時に template 用の共通属性 `type` を補ってから永続化します。 */
   async create(data: CreateUserInput): Promise<User> {
+    const email = normalizeEmail(data.email) ?? data.email;
     return this.repo.create({
       ...data,
+      email,
       type: "user",
-      userId: data.email,
+      userId: email,
       displayName: data.name,
       hasLocalPassword: false,
       roles: ["viewer"],
@@ -40,10 +43,12 @@ export class UserService {
 
   /** 更新処理です。事前チェックや監査ログが必要になったらここに追加していきます。 */
   async update(id: string, data: UpdateUserInput): Promise<User | null> {
+    const email = normalizeEmail(data.email);
     const updatePayload = {
       ...data,
+      ...(email ? { email } : {}),
       ...(data.name ? { displayName: data.name } : {}),
-      ...(data.email ? { userId: data.email } : {}),
+      ...(email ? { userId: email } : {}),
     };
     return this.repo.update(id, updatePayload);
   }

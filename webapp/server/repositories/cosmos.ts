@@ -15,9 +15,8 @@ export function getCosmosClient(): CosmosClient {
   return _client;
 }
 
-export function getContainer() {
+export function getContainer(containerName = env.COSMOS_CONTAINER ?? "") {
   const client = getCosmosClient();
   const database = env.COSMOS_DATABASE ?? "";
-  const container = env.COSMOS_CONTAINER ?? "";
-  return client.database(database).container(container);
+  return client.database(database).container(containerName);
 }

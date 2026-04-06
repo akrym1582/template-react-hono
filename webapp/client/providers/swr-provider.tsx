@@ -1,8 +1,12 @@
 import { SWRConfig } from "swr";
+import { showErrorPopup } from "../lib/alert.js";
 
 const swrConfig = {
   dedupingInterval: 5 * 60 * 1000,
   errorRetryCount: 1,
+  onError: (error: unknown) => {
+    void showErrorPopup(error);
+  },
 };
 
 interface SWRProviderProps {

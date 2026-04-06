@@ -20,6 +20,25 @@ export interface User {
   updatedAt: string;
 }
 
+export interface SampleItem {
+  id: string;
+  type: "sampleItem";
+  code: string;
+  name: string;
+  category: string;
+  description?: string;
+  quantity: number;
+  price: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SearchPage<T> {
+  items: T[];
+  nextCursor: string | null;
+}
+
 export interface SessionUser {
   internalUserId: string;
   userId: string;

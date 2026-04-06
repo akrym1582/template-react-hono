@@ -1,10 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth.js";
+import { useExecApiHandling } from "../../hooks/use-exec-api-handling.js";
 import { Button } from "../ui/button.js";
 
 export function Header() {
   const navigate = useNavigate();
+  const execApiHandling = useExecApiHandling();
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
@@ -16,7 +18,7 @@ export function Header() {
             <span className="text-sm text-muted-foreground">
               {user?.displayName ?? user?.userId}
             </span>
-            <Button variant="outline" size="sm" onClick={() => void logout()}>
+            <Button variant="outline" size="sm" onClick={() => void execApiHandling(() => logout())}>
               Logout
             </Button>
           </>

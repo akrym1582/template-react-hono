@@ -10,6 +10,7 @@ import {
   type SessionAuthVariables,
 } from "../middleware/session-auth.js";
 import { serverContainer } from "../container.js";
+import { AppError } from "../lib/errors.js";
 
 /**
  * ルート層では「HTTP の入出力」を担当します。
@@ -34,7 +35,7 @@ export const usersRoute = new Hono<SessionAuthVariables>()
     const id = c.req.param("id");
     const user = await userService.getById(id);
     if (!user) {
-      return c.json({ error: "User not found" }, 404);
+      throw new AppError("User not found", 404);
     }
     return c.json(user);
   })
@@ -50,7 +51,7 @@ export const usersRoute = new Hono<SessionAuthVariables>()
     const body = c.req.valid("json");
     const user = await userService.update(id, body);
     if (!user) {
-      return c.json({ error: "User not found" }, 404);
+      throw new AppError("User not found", 404);
     }
     return c.json(user);
   })

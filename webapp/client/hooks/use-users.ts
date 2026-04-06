@@ -1,23 +1,16 @@
 import useSWR, { useSWRConfig } from "swr";
 import useSWRMutation from "swr/mutation";
 import { apiClient } from "../lib/api-client.js";
+import { parseApiResponse } from "../lib/api-response.js";
+import type { User } from "../../shared/types/index.js";
 import type { CreateUserInput, UpdateUserInput } from "../../shared/validators/index.js";
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
 
 const USERS_KEY = "users";
 
 /** 一覧取得専用の fetcher です。SWR から繰り返し呼ばれることを想定しています。 */
 async function fetchUsers() {
   const res = await apiClient.api.users.$get();
-  if (!res.ok) {
-    throw new Error("Failed to load users");
-  }
-  return res.json();
+  return parseApiResponse<User[]>(res, "Failed to load users");
 }
 
 /**
@@ -42,7 +35,7 @@ export function useCreateUser() {
   const { mutate } = useSWRConfig();
   const mutation = useSWRMutation(USERS_KEY, async (_key: string, { arg }: { arg: CreateUserInput }) => {
     const res = await apiClient.api.users.$post({ json: arg });
-    return res.json();
+    return parseApiResponse<User>(res, "Failed to create user");
   }, {
     onSuccess: () => {
       void mutate(USERS_KEY);
@@ -63,7 +56,7 @@ export function useUpdateUser() {
     USERS_KEY,
     async (_key: string, { arg }: { arg: { id: string; data: UpdateUserInput } }) => {
       const res = await apiClient.api.users[":id"].$put({ param: { id: arg.id }, json: arg.data });
-      return res.json();
+      return parseApiResponse<User>(res, "Failed to update user");
     },
     {
       onSuccess: () => {
@@ -84,7 +77,7 @@ export function useDeleteUser() {
   const { mutate } = useSWRConfig();
   const mutation = useSWRMutation(USERS_KEY, async (_key: string, { arg }: { arg: string }) => {
     const res = await apiClient.api.users[":id"].$delete({ param: { id: arg } });
-    return res.json();
+    return parseApiResponse<{ success: true }>(res, "Failed to delete user");
   }, {
     onSuccess: () => {
       void mutate(USERS_KEY);
