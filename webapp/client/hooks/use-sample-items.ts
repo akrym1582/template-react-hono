@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
+import { SAMPLE_ITEMS_ROUTE } from "../../shared/constants/routes.js";
 import type { SampleItem, SearchPage } from "../../shared/types/index.js";
 import type {
   CreateSampleItemInput,
@@ -22,7 +23,7 @@ function buildSampleSearchParams(input: Partial<SampleItemSearchInput>) {
 }
 
 async function fetchSampleItems(search: SampleItemSearchInput, cursor: string | null) {
-  const response = await apiClient.api["sample-items"].$get({
+  const response = await apiClient.api[SAMPLE_ITEMS_ROUTE.segment].$get({
     query: buildSampleSearchParams({
       ...search,
       cursor: cursor ?? undefined,
@@ -44,7 +45,7 @@ export function useSampleItem(id?: string) {
   const swr = useSWR<SampleItem, Error>(
     id ? [SAMPLE_ITEM_DETAIL_KEY, id] : null,
     async () => {
-      const response = await apiClient.api["sample-items"][":id"].$get({
+      const response = await apiClient.api[SAMPLE_ITEMS_ROUTE.segment][SAMPLE_ITEMS_ROUTE.id].$get({
         param: { id: id! },
       });
       return parseApiResponse<SampleItem>(response, "Failed to load sample item");
@@ -61,7 +62,7 @@ export function useCreateSampleItem() {
   const mutation = useSWRMutation(
     "sample-items-create",
     async (_key: string, { arg }: { arg: CreateSampleItemInput }) => {
-      const response = await apiClient.api["sample-items"].$post({ json: arg });
+      const response = await apiClient.api[SAMPLE_ITEMS_ROUTE.segment].$post({ json: arg });
       return parseApiResponse<SampleItem>(response, "Failed to create sample item");
     }
   );
@@ -76,7 +77,7 @@ export function useUpdateSampleItem() {
   const mutation = useSWRMutation(
     "sample-items-update",
     async (_key: string, { arg }: { arg: { id: string; data: UpdateSampleItemInput } }) => {
-      const response = await apiClient.api["sample-items"][":id"].$put({
+      const response = await apiClient.api[SAMPLE_ITEMS_ROUTE.segment][SAMPLE_ITEMS_ROUTE.id].$put({
         param: { id: arg.id },
         json: arg.data,
       });
@@ -94,7 +95,7 @@ export function useDeleteSampleItem() {
   const mutation = useSWRMutation(
     "sample-items-delete",
     async (_key: string, { arg }: { arg: string }) => {
-      const response = await apiClient.api["sample-items"][":id"].$delete({
+      const response = await apiClient.api[SAMPLE_ITEMS_ROUTE.segment][SAMPLE_ITEMS_ROUTE.id].$delete({
         param: { id: arg },
       });
       return parseApiResponse<{ success: true }>(response, "Failed to delete sample item");
@@ -109,5 +110,5 @@ export function useDeleteSampleItem() {
 
 export function buildSampleItemsCsvUrl(search: SampleItemSearchInput) {
   const query = new URLSearchParams(buildSampleSearchParams(search));
-  return `/api/sample-items/export?${query.toString()}`;
+  return `${SAMPLE_ITEMS_ROUTE.base}/${SAMPLE_ITEMS_ROUTE.export}?${query.toString()}`;
 }
